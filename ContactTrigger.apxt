@@ -1,0 +1,6 @@
+trigger ContactTrigger on Contact (after insert) {
+    
+    ContactTriggerHandler ct = new ContactTriggerHandler();
+    ct.afterContactInsertMethod(trigger.new, Trigger.newMap);
+    
+}
