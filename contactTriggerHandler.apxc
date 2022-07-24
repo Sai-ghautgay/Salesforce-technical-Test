@@ -1,0 +1,35 @@
+public class ContactTriggerHandler {
+
+    public void afterContactInsertMethod(List<Contact> insertedContacts, Map<id,Contact> insertedContactsMap){
+        
+        List<Case> casesToCreate = new List<Case>();
+        for(Contact con:insertedContacts)
+        {
+            Case cs = new Case();
+            cs.ContactId =  insertedContactsMap.get(con.Id).id;
+            cs.AccountId =  con.AccountId;
+            cs.Status = 'Working';
+            cs.Origin = 'New Contact';
+            cs.OwnerId = insertedContactsMap.get(con.Id).OwnerId;
+            
+            if(con.Level__c=='Primary')
+            {
+                cs.Priority = 'High';
+            }
+            if(con.Level__c=='Secondary')
+            {
+                cs.Priority = 'Medium';
+            }
+            if(con.Level__c=='Tertiary')
+            {
+                cs.Priority = 'Low';
+            }
+           
+            casesToCreate.add(cs);
+           
+        }  
+
+        insert casesToCreate;
+    }    
+
+}
