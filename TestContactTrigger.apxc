@@ -1,0 +1,58 @@
+@isTest
+public class TestContactTrigger {
+    static testMethod void testOneCon(){
+        
+        List<Account> testAcc = new List<Account>();
+        
+        Account a = new Account(name='test acc');
+        testAcc.add(a);
+        
+        Account a2 = new Account(name='test acc 2');
+        testAcc.add(a2);
+        
+        insert testAcc;
+        
+        List<Contact> testContacts = new List<Contact>();
+        
+        Contact con = new Contact(AccountId=testAcc[0].id,lastname='PrimaryContact',email='abc@gmail.com',Level__c='Primary');
+		testContacts.add(con);      
+        
+        Contact con2 = new Contact(AccountId=testAcc[1].id,lastname='SecondaryContact',email='cde@gmail.com',Level__c='Secondary');
+		testContacts.add(con2);
+        
+        Contact con3 = new Contact(AccountId=testAcc[1].id,lastname='TertiaryContract',email='fgh@gmail.com',Level__c='Tertiary');
+		testContacts.add(con3);        
+        
+        Test.startTest();
+        insert testContacts;
+        
+        Set<Id> contactIds = new Set<Id>();
+        
+        for(Contact cn:testContacts)
+        {
+          contactIds.add(cn.Id);
+        }
+        
+        List<Case> insertedCases = [Select id, Contact.Id, Contact.Name, Priority from Case where Contact.Id in :contactIds];
+        
+        Map<String,Case> contactCaseMap = new Map<String,Case>();
+        
+        for(Case c:insertedCases)
+        {
+            if(!contactCaseMap.containsKey(c.Contact.Name))
+            {
+                contactCaseMap.put(c.Contact.Name, c);
+            }
+        }
+        
+        System.assertEquals(3, insertedCases.size());
+        
+        System.assertEquals('High', contactCaseMap.get('PrimaryContact').Priority);
+        System.assertEquals('Medium', contactCaseMap.get('SecondaryContact').Priority); 
+        System.assertEquals('Low', contactCaseMap.get('TertiaryContract').Priority);         
+        
+        Test.stopTest();
+    
+    }
+        
+}
